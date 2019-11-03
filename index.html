@@ -85,13 +85,12 @@
         function init() {
               //******************************************
             container = document.createElement('stats');
-            console.log(container)
             document.body.appendChild(container);
             document.addEventListener('click', function (evt) {
             // The user has clicked; let's note this event
             // and the click's coordinates so that we can
             // react to it in the render loop
-            console.log(evt)
+          
             clickInfo.userHasClicked = true;
             clickInfo.x = evt.clientX;
             clickInfo.y = evt.clientY;
@@ -122,14 +121,14 @@
             var material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
             for ( var i = 0; i < 500; i ++ ) {
                 geometry = new THREE.CylinderBufferGeometry( 0, 10, (10+(i+1)/2), 4+i, 1 );
-                var mesh = new THREE.Mesh( geometry, material );
+                var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } ) );
                 mesh.name= 'Halo '+i;
               
                 mesh.position.x = Math.random() * 1600 - 800;
                 mesh.position.y = 0;
                 mesh.position.z = Math.random() * 1600 - 800;
                 mesh.updateMatrix();
-                console.log( mesh)
+              
                 scene.add( mesh );
             }
             // lights
@@ -184,17 +183,17 @@
             var y = -( clickInfo.y / SCREEN_HEIGHT ) * 2 + 1;
 
             // Now we set our direction vector to those initial values
-            directionVector.set(x, y, 1);
+            //directionVector.set(x, y, 1);
 
             // Unproject the vector
-            projector.unproject(directionVector, camera);
+            //projector.unproject(directionVector, camera);
 
             // Substract the vector representing the camera position
-            directionVector.sub(camera.position);
+            //directionVector.sub(camera.position);
 
             // Normalize the vector, to avoid large numbers from the
             // projection and substraction
-            directionVector.normalize();
+            //directionVector.normalize();
 
             // Now our direction vector holds the right numbers!
            // update the picking ray with the camera and mouse position
@@ -204,6 +203,15 @@
             console.log(intersects)
             //var intersects = ray.intersectObjects(scene.children);
             if (intersects.length) {
+            
+                if ( INTERSECTED != intersects[ 0 ].object ) {
+						if ( INTERSECTED ) INTERSECTED.material.color.setHex( 0xffffff );
+						INTERSECTED = intersects[ 0 ].object;
+                        console.log(INTERSECTED.name)
+					
+						INTERSECTED.material.color.setHex( 0xff0000 );
+				
+				}
                 // intersections are, by default, ordered by distance,
                 // so we only care for the first one. The intersection
                 // object holds the intersection point, the face that's
@@ -218,6 +226,9 @@
                 marker.position.x = intersects[0].point.x;
                 marker.position.y = intersects[0].point.y;
                 marker.position.z = intersects[0].point.z;
+            }else{
+                if(INTERSECTED)INTERSECTED.material.color.setHex( 0xffffff );
+                INTERSECTED=null;
             }
 
         }
