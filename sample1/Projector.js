@@ -135,9 +135,9 @@ THREE.Projector = function () {
 
 	};
 
-	this.unproject= function ( vector, camera ) {
+	this.unprojectVector = function ( vector, camera ) {
 
-		console.warn( 'THREE.Projector: .unproject() is now vector.unproject().' );
+		console.warn( 'THREE.Projector: .unprojectVector() is now vector.unproject().' );
 		vector.unproject( camera );
 
 	};

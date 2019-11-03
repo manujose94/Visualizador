@@ -47,8 +47,8 @@
         </style>
 </head>
 <body>
-        <div id="stats">
-            </div>
+        <div id="stats"></div>
+           
     <script src="./build/three.js"></script>
     <script src="./js/ColladaLoader.js"></script>
     <script src="./js/ReusableRay.js"></script>
@@ -56,12 +56,12 @@
     <script src="./js/Stats.js"></script>
     <script src="./js/Projector.js"></script>
     <script type="module">
-        import * as THREE from './build/three.module.js';
+        //import * as THREE from './build/three.module.js';
         import { OrbitControls } from './js/controls/OrbitControls.js';
-        import {ReusableRay } from './js/ReusableRay.js';
         //detect
         if (!Detector.webgl) Detector.addGetWebGLMessage();
-        var ray = new ReusableRay();
+        var raycaster = new THREE.Raycaster();
+        var mouse = new THREE.Vector2(), INTERSECTED;
         var projector = new THREE.Projector();
         var directionVector = new THREE.Vector3();
 
@@ -74,19 +74,24 @@
             userHasClicked: false
         };
         //******************************************
-        var container, stats;
+        var container, stats, marker;
         var camera, controls, scene, renderer;
+        var statsNode = document.getElementById('stats');
         init();
         //render(); // remove when using next line for animation loop (requestAnimationFrame)
         animate();
+        renderer.domElement.addEventListener("click", onclick, true);
+
         function init() {
               //******************************************
-            container = document.createElement('div');
+            container = document.createElement('stats');
+            console.log(container)
             document.body.appendChild(container);
-            container.addEventListener('click', function (evt) {
+            document.addEventListener('click', function (evt) {
             // The user has clicked; let's note this event
             // and the click's coordinates so that we can
             // react to it in the render loop
+            console.log(evt)
             clickInfo.userHasClicked = true;
             clickInfo.x = evt.clientX;
             clickInfo.y = evt.clientY;
@@ -101,6 +106,8 @@
             document.body.appendChild( renderer.domElement );
             camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
             camera.position.set( 400, 200, 0 );
+
+        
             // controls
             controls = new OrbitControls( camera, renderer.domElement );
             //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
@@ -114,13 +121,15 @@
             var geometry = new THREE.CylinderBufferGeometry( 0, 10, 30, 4, 1 );
             var material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
             for ( var i = 0; i < 500; i ++ ) {
+                geometry = new THREE.CylinderBufferGeometry( 0, 10, (10+(i+1)/2), 4+i, 1 );
                 var mesh = new THREE.Mesh( geometry, material );
                 mesh.name= 'Halo '+i;
+              
                 mesh.position.x = Math.random() * 1600 - 800;
                 mesh.position.y = 0;
                 mesh.position.z = Math.random() * 1600 - 800;
                 mesh.updateMatrix();
-                mesh.matrixAutoUpdate = false;
+                console.log( mesh)
                 scene.add( mesh );
             }
             // lights
@@ -133,7 +142,12 @@
             var light = new THREE.AmbientLight( 0x222222 );
             scene.add( light );
             //
+            document.addEventListener( 'mousemove', onMouseMove, false );
             window.addEventListener( 'resize', onWindowResize, false );
+
+             /* hit point marker */
+        marker = new THREE.Mesh( new THREE.SphereGeometry(1), new THREE.MeshLambertMaterial( { color: 0xff0000 } ) );
+        scene.add(marker);
         }
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -144,6 +158,15 @@
             requestAnimationFrame( animate );
             controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
             render();
+        }
+        function onMouseMove( event ) {
+            event.preventDefault();
+            // calculate mouse position in normalized device coordinates
+            // (-1 to +1) for both components
+
+            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
         }
         function render() {
 
@@ -164,19 +187,22 @@
             directionVector.set(x, y, 1);
 
             // Unproject the vector
-            projector.unprojectVector(directionVector, camera);
+            projector.unproject(directionVector, camera);
 
             // Substract the vector representing the camera position
-            directionVector.subSelf(camera.position);
+            directionVector.sub(camera.position);
 
             // Normalize the vector, to avoid large numbers from the
             // projection and substraction
             directionVector.normalize();
 
             // Now our direction vector holds the right numbers!
-            ray.setSource(camera.position, directionVector);
+           // update the picking ray with the camera and mouse position
+	        raycaster.setFromCamera( mouse, camera );
 
-            var intersects = ray.intersectObjects(scene.children);
+            var intersects = raycaster.intersectObjects(scene.children); //array
+            console.log(intersects)
+            //var intersects = ray.intersectObjects(scene.children);
             if (intersects.length) {
                 // intersections are, by default, ordered by distance,
                 // so we only care for the first one. The intersection

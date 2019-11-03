@@ -6,9 +6,9 @@
 
 
 
-export class ReusableRay {
+ class ReusableRay {
   constructor() {
-
+   
     this.precision = 0.0001;
   
     this.vectorPool = {
@@ -30,11 +30,8 @@ export class ReusableRay {
       v2: new THREE.Vector3()
   
     };
-  
-  };
-  prototype = {
-
-    distanceFromIntersection: function (origin, direction, position) {
+  }
+    distanceFromIntersection= function (origin, direction, position) {
   
       var dot, intersect, distance,
         vp = this.vectorPool,
@@ -50,10 +47,12 @@ export class ReusableRay {
   
       return distance;
   
-    },
+    }
   
-    intersectMesh: function (object, parent) {
-  
+    intersectMesh= function (object, parent) {
+     
+     
+        console.log(object)
       var distance, intersect, intersects = [],
         vp = this.vectorPool,
         originCopy = vp.originCopy,
@@ -69,6 +68,7 @@ export class ReusableRay {
       // Checking boundingSphere
   
       distance = this.distanceFromIntersection(this.origin, this.direction, object.matrixWorld.getPosition());
+      console.log(THREE.Frustum)
       var scale = THREE.Frustum.__v1.set(object.matrixWorld.getColumnX().length(), object.matrixWorld.getColumnY().length(), object.matrixWorld.getColumnZ().length());
   
       if (distance > object.geometry.boundingSphere.radius * Math.max(scale.x, Math.max(scale.y, scale.z))) {
@@ -168,9 +168,9 @@ export class ReusableRay {
       }
   
       return intersects;
-    },
+    }
   
-    intersectObject: function (object) {
+    intersectObject= function (object) {
   
       var distance, intersect, intersects = [];
   
@@ -214,9 +214,9 @@ export class ReusableRay {
   
       return intersects;
   
-    },
+    }
   
-    intersectObjects: function (objects) {
+    intersectObjects= function (objects) {
   
       var intersects = [];
   
@@ -232,10 +232,10 @@ export class ReusableRay {
   
       return intersects;
   
-    },
+    }
   
     // http://www.blackpawn.com/texts/pointinpoly/default.html
-    pointInFace3: function (p, a, b, c) {
+    pointInFace3= function (p, a, b, c) {
   
       var dot00, dot01, dot02, dot11, dot12, invDenom, u, v,
         vp = this.vectorPool,
@@ -259,18 +259,18 @@ export class ReusableRay {
   
       return ( u >= 0 ) && ( v >= 0 ) && ( u + v < 1 );
   
-    },
+    }
   
-    setPrecision: function (value) {
+    setPrecision= function (value) {
       this.precision = value;
-    },
+    }
   
-    setSource: function (origin, direction) {
+    setSource= function (origin, direction) {
       this.origin = origin;
       this.direction = direction;
     }
   
-  };
+  
 }
 
 
