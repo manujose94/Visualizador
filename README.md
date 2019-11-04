@@ -3,6 +3,7 @@
 
 An example of an application with javascript and html, where it allows to select objects and gather data, also it generates and fills a table about all existing objects.
 
+This example project has been create from this [example](https://threejs.org/examples/misc_controls_orbit.html).
 
 three.js
 ========
