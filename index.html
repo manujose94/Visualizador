@@ -43,19 +43,46 @@
                 border: solid 1px black;
                 border-radius: 5px;
             }
+
+            #stats2 {
+                position: absolute;
+                right: 10px;
+                top: 80px;
+                color: #fff;
+                text-align: left;
+              
+                width: 500px;
+                height: 200px;
+                
+            }
     
         </style>
+         <link rel="stylesheet" href="/css/w3.css"> 
 </head>
 <body>
         <div id="stats"></div>
-           
+        <div id="stats2">
+          
+            <table id="mytable" class=" w3-table-all">
+              <thead>
+                <tr class="w3-light-grey w3-hover-red">
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Material</th>
+                </tr>
+              </thead>
+            
+            </table>
+          </div>
+          
     <script src="./build/three.js"></script>
     <script src="./js/ColladaLoader.js"></script>
-    <script src="./js/ReusableRay.js"></script>
     <script src="./js/Detector.js"></script>
     <script src="./js/Stats.js"></script>
     <script src="./js/Projector.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/js/jquery/jquery-3.4.1.slim.min.js"></script>
     <script type="module">
+
         //import * as THREE from './build/three.module.js';
         import { OrbitControls } from './js/controls/OrbitControls.js';
         //detect
@@ -73,10 +100,22 @@
             y: 0,
             userHasClicked: false
         };
+        var statsNode;
         //******************************************
         var container, stats, marker;
         var camera, controls, scene, renderer;
-        var statsNode = document.getElementById('stats');
+        var tagsArray;
+        window.onload=function(){
+            var rows = document.getElementsByTagName("tr");
+            for (var i = 0; i < rows.length; i++)
+            {
+                rows[i].onclick = function() {
+                    var row;
+                    if(this)row= this.cells;
+                    for (var i = 0; i < row.length; i++)console.log(row[i].innerHTML);   
+                    };
+            }
+        }
         init();
         //render(); // remove when using next line for animation loop (requestAnimationFrame)
         animate();
@@ -84,6 +123,7 @@
 
         function init() {
               //******************************************
+              statsNode = document.getElementById('stats');
             container = document.createElement('stats');
             document.body.appendChild(container);
             document.addEventListener('click', function (evt) {
@@ -95,6 +135,8 @@
             clickInfo.x = evt.clientX;
             clickInfo.y = evt.clientY;
             }, false);
+            
+    
   //******************************************
             scene = new THREE.Scene();
             scene.background = new THREE.Color( 0xcccccc );
@@ -119,18 +161,21 @@
             // world
             var geometry = new THREE.CylinderBufferGeometry( 0, 10, 30, 4, 1 );
             var material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
-            for ( var i = 0; i < 500; i ++ ) {
-                geometry = new THREE.CylinderBufferGeometry( 0, 10, (10+(i+1)/2), 4+i, 1 );
+             tagsArray=new Array();
+            for ( var i = 0; i < 30; i ++ ) {
+                geometry = new THREE.CylinderBufferGeometry( 0, 10, (10+(i+1)), 4+i, 1 );
                 var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } ) );
                 mesh.name= 'Halo '+i;
               
-                mesh.position.x = Math.random() * 1600 - 800;
+                mesh.position.x = Math.random() * 1000 - 600;
                 mesh.position.y = 0;
-                mesh.position.z = Math.random() * 1600 - 800;
+                mesh.position.z = Math.random() * 1000 - 600;
                 mesh.updateMatrix();
-              
+                tagsArray.push(mesh);
+               
                 scene.add( mesh );
             }
+       
             // lights
             var light = new THREE.DirectionalLight( 0xffffff );
             light.position.set( 1, 1, 1 );
@@ -147,6 +192,25 @@
              /* hit point marker */
         marker = new THREE.Mesh( new THREE.SphereGeometry(1), new THREE.MeshLambertMaterial( { color: 0xff0000 } ) );
         scene.add(marker);
+        filloutTable();
+        }
+
+        function filloutTable(){
+
+            if ($("#mytable tbody").length == 0) {
+            console.log("holaaa")
+            $("#mytable").append("<tbody></tbody>");
+        }
+         // Append product to the table
+         for ( var i = 0; i < tagsArray.length; i ++ ) {
+            $("#mytable tbody").append(
+            '<tr class="w3-hover-text-green">' +
+                "<td>"+tagsArray[i].id+"</td>" +
+                "<td>"+tagsArray[i].name+"</td>" +
+                "<td>"+tagsArray[i].material.type+"</td>" +
+            "</tr>"
+            );
+         }
         }
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
