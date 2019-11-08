@@ -48,7 +48,7 @@
                 position: absolute;
                 right: 10px;
                 top: 80px;
-                color: #fff;
+                color: rgb(107, 129, 241);
                 text-align: left;
               
                 width: 500px;
@@ -94,13 +94,14 @@
 
         var SCREEN_HEIGHT = window.innerHeight;
         var SCREEN_WIDTH = window.innerWidth;
-
+        var row;
         var clickInfo = {
             x: 0,
             y: 0,
             userHasClicked: false
         };
         var statsNode;
+        var row_okey;
         //******************************************
         var container, stats, marker;
         var camera, controls, scene, renderer;
@@ -109,13 +110,17 @@
             var rows = document.getElementsByTagName("tr");
             for (var i = 0; i < rows.length; i++)
             {
+                
+                
                 rows[i].onclick = function() {
                     var row;
+                    row_okey=true;
                     if(this)row= this.cells;
-                    for (var i = 0; i < row.length; i++)console.log(row[i].innerHTML);   
+                    for (var i = 0; i < row.length; i++)console.log(row[i].innerHTML); row_okey=row;
                     };
             }
         }
+      
         init();
         //render(); // remove when using next line for animation loop (requestAnimationFrame)
         animate();
@@ -231,10 +236,11 @@
             mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
         }
+        
         function render() {
 
         if (clickInfo.userHasClicked) {
-
+            console.log("clicked "+row_okey)
             clickInfo.userHasClicked = false;
 
             statsNode.innerHTML = '';
@@ -285,7 +291,8 @@
                 statsNode.innerHTML = 'Name: ' + target.name
                         + '<br>'
                         + 'ID: ' + target.id;
-
+            
+            
                 // let's move the marker to the hit point
                 marker.position.x = intersects[0].point.x;
                 marker.position.y = intersects[0].point.y;
@@ -296,7 +303,43 @@
             }
 
         }
-            renderer.render( scene, camera );
+            if(row_okey)setSelectedObject(row_okey);
+            else renderer.render( scene, camera );
+        }
+    
+      
+        function setSelectedObject(row) {
+            row_okey=null;
+            var id = row[0].innerHTML;
+            if(!id) return;
+
+           
+            var data = tagsArray.find( tag => tag['id'] === Number(id) );
+        
+            if( data ) {
+                
+                document.getElementById("stats").innerHTML  = '';
+
+                console.log( 'found' );
+                console.log(data); // This is entire object i.e. `item` not boolean
+                if ( INTERSECTED != data ) {
+                            if ( INTERSECTED ) INTERSECTED.material.color.setHex( 0xffffff );
+                            INTERSECTED = data;
+                            console.log('INTERSECTED '+INTERSECTED.name)
+                        
+                            INTERSECTED.material.color.setHex( 0xff0000 );
+                    
+                    }
+                
+                    var target = data;
+                    document.getElementById("stats").innerHTML  = 'Name: ' + target.name
+                            + '<br>'
+                            + 'ID: ' + target.id;
+                
+                            renderer.render( scene, camera );
+                 
+            }
+
         }
     </script>
 </body>
