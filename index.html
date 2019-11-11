@@ -63,7 +63,7 @@
         <div id="stats"></div>
         <div id="stats2">
           
-            <table id="mytable" class=" w3-table-all">
+            <table id="mytable" class=" w3-table-all w3-card-4">
               <thead>
                 <tr class="w3-light-grey w3-hover-red">
                   <th>ID</th>
@@ -106,18 +106,24 @@
         var container, stats, marker;
         var camera, controls, scene, renderer;
         var tagsArray;
+        var selected_row;
         window.onload=function(){
             var rows = document.getElementsByTagName("tr");
             for (var i = 0; i < rows.length; i++)
             {
-                
-                
+ 
                 rows[i].onclick = function() {
-                    var row;
+                    if(!this) return;
+                   
+                    if(selected_row)selected_row.style.backgroundColor = "white";
+                
+                
+                    selected_row= this;
                     row_okey=true;
-                    if(this)row= this.cells;
-                    for (var i = 0; i < row.length; i++)console.log(row[i].innerHTML); row_okey=row;
-                    };
+                    this.style.backgroundColor = "red";
+                    //for (var i = 0; i < selected_row.length; i++)console.log(selected_row[i].innerHTML);
+                }
+                    
             }
         }
       
@@ -236,15 +242,34 @@
             mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
         }
+
+        function findObjectTable(id){
+         
+            var rows = document.getElementsByTagName("tr");
+            for (var i = 0; i < rows.length; i++)
+            {
+                
+                if(rows[i].cells)if(rows[i].cells.length>1){
+                    
+                    if(rows[i].cells[0].innerHTML==id){
+                        console.log(rows[i].cells[0].innerHTML+' '+id);
+                        if(selected_row)selected_row.style.backgroundColor = "white";
+                        selected_row= rows[i];
+                        selected_row.style.backgroundColor = "red";
+                    }
+                }
+               
+                    
+            }
+        }
         
         function render() {
-
+        var id=null;
         if (clickInfo.userHasClicked) {
-            console.log("clicked "+row_okey)
             clickInfo.userHasClicked = false;
-
+           
             statsNode.innerHTML = '';
-
+         
             // The following will translate the mouse coordinates into a number
             // ranging from -1 to 1, where
             //      x == -1 && y == -1 means top-left, and
@@ -292,7 +317,7 @@
                         + '<br>'
                         + 'ID: ' + target.id;
             
-            
+                id=target.id;
                 // let's move the marker to the hit point
                 marker.position.x = intersects[0].point.x;
                 marker.position.y = intersects[0].point.y;
@@ -303,8 +328,12 @@
             }
 
         }
-            if(row_okey)setSelectedObject(row_okey);
-            else renderer.render( scene, camera );
+           
+            if(row_okey)setSelectedObject(selected_row.cells);
+            else{
+               if(id) findObjectTable(id);
+                renderer.render( scene, camera );
+            }
         }
     
       
